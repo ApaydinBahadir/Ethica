@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { invoke } from '@tauri-apps/api/tauri';
+import { invoke } from "@tauri-apps/api/tauri";
 import "../styles/Menu.css";
 
 export default function Menu() {
@@ -8,7 +8,7 @@ export default function Menu() {
   useEffect(() => {
     async function fetchCardCount() {
       try {
-        const count = await invoke('getcards', { name: 'example_card_name' });
+        const count = await invoke("card_count", {});
         setCardCount(count);
       } catch (error) {
         console.error(`Failed to fetch card count: ${error}`);
@@ -21,7 +21,21 @@ export default function Menu() {
   return (
     <div id="menu">
       <div id="cardCount">
-        {cardCount !== null ? `Card Count: ${cardCount}` : 'Loading...'}
+        <a href="/cards">
+          {cardCount !== null ? `Card Count: ${cardCount}` : "Loading..."}
+        </a>
+      </div>
+
+      <div>
+        <a href="/cards/deneme/edit">deneme click</a>
+      </div>
+
+      <div>
+        <a href="/cards/title/edit">click</a>
+      </div>
+
+      <div>
+        <a>{window.location.pathname}</a>
       </div>
     </div>
   );

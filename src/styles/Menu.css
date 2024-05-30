@@ -2,4 +2,6 @@
   color: red;
   grid-row-start: 1;
   background-color: rgb(34, 34, 34);
+  display: grid;
+  grid-template: auto / auto auto auto;
 }

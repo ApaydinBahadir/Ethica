@@ -7,11 +7,26 @@ import Welcomepage from "./pages/Welcomepage";
 
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import Menu from "./layouts/Menu";
+import Cards from "./pages/Cards";
+import Card from "./pages/Card";
+import CardEdit from "./pages/CardEdit";
 
 const router = createBrowserRouter([
   {
     path: "/",
     element: <Welcomepage />,
+  },
+  {
+    path: "/cards",
+    element: <Cards />,
+  },
+  {
+    path: "/cards/:id",
+    element: <Card />
+  },
+  {
+    path: "/cards/:id/edit",
+    element: <CardEdit />,
   },
 ]);
 
