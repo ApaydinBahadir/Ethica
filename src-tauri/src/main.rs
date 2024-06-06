@@ -20,7 +20,9 @@ fn main() {
             cards_add_list,
             card_details,
             questions_and_answer,
-            save_questions_and_answer
+            update_questions_and_answer,
+            add_questions_and_answer,
+            remove_question_answer
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

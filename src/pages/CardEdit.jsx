@@ -8,6 +8,8 @@ export default function CardEdit() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [formState, setFormState] = useState({});
+  const [addFormState, setAddFormState] = useState({});
+  const [pressed, setPressed] = useState(0);
 
   useEffect(() => {
     async function fetchQA() {
@@ -37,18 +39,74 @@ export default function CardEdit() {
     }));
   };
 
-  const handleSubmit = async (event) => {
-    event.preventDefault();
+  const addHandleInputChange = (event, key, field) => {
+    const { value } = event.target;
+    setAddFormState((prev) => ({
+      ...prev,
+      [key]: {
+        ...prev[key],
+        [field]: value,
+      },
+    }));
+  };
+
+  const handleUpdate = async (key) => {
     try {
-      await invoke("save_questions_and_answer", {
+      await invoke("update_questions_and_answer", {
         fileName: id,
-        data: formState,
+        data: {
+          question: formState[key]?.question,
+          answer: formState[key]?.answer,
+        },
+        numberOfQuestion: parseInt(key),
       });
-      alert("Saved successfully!");
     } catch (error) {
-      console.error(`Failed to save card detail: ${error}`);
+      console.error(`Failed to update question and answer: ${error}`);
       setError(error);
     }
+  };
+
+  const addNewQA = () => {
+    const newIndex = pressed + 1; // Adjust to start from 1
+    setPressed(newIndex);
+    setAddFormState((prev) => ({
+      ...prev,
+      [newIndex]: { question: "", answer: "" },
+    }));
+  };
+
+  const printData = async () => {
+    const sortedAddFormState = Object.fromEntries(
+      Object.entries(addFormState).sort(
+        ([keyA], [keyB]) => parseInt(keyA) - parseInt(keyB)
+      )
+    );
+    try {
+      await invoke("add_questions_and_answer", {
+        fileName: id,
+        data: sortedAddFormState,
+      });
+    } catch (error) {
+      console.error(`Failed to update question and answer: ${error}`);
+      setError(error);
+    }
+    window.location.reload();
+  };
+
+  const removeQA = async (key) => {
+    try {
+      await invoke("remove_question_answer", {
+        filename: id,
+        data: {
+          question: formState[key]?.question,
+          answer: formState[key]?.answer,
+        },
+      });
+    } catch (error) {
+      console.error(`Failed to update question and answer: ${error}`);
+      setError(error);
+    }
+    window.location.reload();
   };
 
   if (loading) {
@@ -65,27 +123,53 @@ export default function CardEdit() {
 
   return (
     <div>
-      {/* <form onSubmit={handleSubmit}> */}
-        {Object.entries(formState).map(([key, value]) => (
-          <div key={key} className={`QA-${key}`}>
-            <label htmlFor="">Question {key}</label>
+      {Object.entries(formState).map(([key, value]) => (
+        <div key={key} className={`QA-${key}`}>
+          <label htmlFor={`question-${key}`}>Question {key}</label>
+          <input
+            type="text"
+            name={`question-${key}`}
+            value={value.question}
+            id={`question-${key}`}
+            onChange={(e) => handleInputChange(e, key, "question")}
+          />
+          <label htmlFor={`answer-${key}`}>Answer {key}</label>
+          <input
+            type="text"
+            name={`answer-${key}`}
+            value={value.answer}
+            id={`answer-${key}`}
+            onChange={(e) => handleInputChange(e, key, "answer")}
+          />
+          <button onClick={() => handleUpdate(key)}>Update</button>
+          <button onClick={() => removeQA(key)}>Remove</button>
+        </div>
+      ))}
+
+      <div id="add_qa">
+        <button onClick={printData}>Show</button>
+        <button onClick={addNewQA}>Add</button>
+        {Object.entries(addFormState).map(([key, value]) => (
+          <div key={key}>
+            <label htmlFor={`new-question-${key}`}>New Question {key}</label>
             <input
               type="text"
-              name={`question-${key}`}
-              value={value["question"]}
-              onChange={(e) => handleInputChange(e, key, "question")}
+              name={`new-question-${key}`}
+              value={value.question}
+              id={`new-question-${key}`}
+              onChange={(e) => addHandleInputChange(e, key, "question")}
             />
-            <label htmlFor="">Answer {key}</label>
+            <label htmlFor={`new-answer-${key}`}>New Answer {key}</label>
             <input
               type="text"
-              name={`answer-${key}`}
-              value={value["answer"]}
-              onChange={(e) => handleInputChange(e, key, "answer")}
+              name={`new-answer-${key}`}
+              value={value.answer}
+              id={`new-answer-${key}`}
+              onChange={(e) => addHandleInputChange(e, key, "answer")}
             />
-            <button type="submit">Update</button>
           </div>
         ))}
-      {/* </form> */}
+      </div>
     </div>
   );
 }
